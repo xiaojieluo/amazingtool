@@ -1,2 +1,2 @@
-# amazingtool
+# amazing tool
 amazing tool
