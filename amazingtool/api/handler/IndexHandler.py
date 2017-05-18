@@ -1,9 +1,12 @@
 from api.handler.APIHandler import APIHandler
+import json
 
 class index(APIHandler):
     def get(self):
         data = {
-            'users':'/users/:username'
+            'users':'/users/:username',
+            'encode':{
+                'md5':'/encode/md5',
+            }
         }
-        self.write("Hello")
-        # self.write_error(data, 404)
+        self.write_error(data, 404)

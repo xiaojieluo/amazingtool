@@ -5,6 +5,10 @@ import json
 from tornado.web import Finish
 import tornado.web
 
+import sys
+sys.path.append('../')
+from amazingtool.db import db
+
 class APIHandler(tornado.web.RequestHandler):
 
     def __init__(self, application, request, **kwargs):
@@ -15,6 +19,13 @@ class APIHandler(tornado.web.RequestHandler):
 
         if self.settings.get('allow_remote_access'):
             self.access_control_allow()
+        self.db = db
+
+    def update(self):
+        '''
+        更新 mongodb 中的数据
+        '''
+        pass
 
     def write_json(self, data, status_code=200, msg='success.'):
         self.set_header('Cache-Control', "no-cache")
