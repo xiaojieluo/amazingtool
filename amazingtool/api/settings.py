@@ -5,4 +5,5 @@ import tornado.web
 
 settings = dict(
     debug = True,
+    siteurl = 'http://localhost:8888/'
 )

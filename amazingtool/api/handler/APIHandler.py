@@ -16,16 +16,18 @@ class APIHandler(tornado.web.RequestHandler):
         self.set_header('Content-Type', 'text/json')
         self.set_header('Server', 'You guess.')
         self.set_header('Connection','keep-alive')
+        self.set_header('Access-Control-Allow-Origin','*')
 
         if self.settings.get('allow_remote_access'):
             self.access_control_allow()
         self.db = db
 
-    def update(self):
+
+    def site_url(self, url):
         '''
-        更新 mongodb 中的数据
+        构造 api 地址
         '''
-        pass
+        return self.settings.get('siteurl') + url
 
     def write_json(self, data, status_code=200, msg='success.'):
         self.set_header('Cache-Control', "no-cache")
