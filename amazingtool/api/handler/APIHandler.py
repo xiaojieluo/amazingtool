@@ -22,6 +22,12 @@ class APIHandler(tornado.web.RequestHandler):
             self.access_control_allow()
         self.db = db
 
+    def language(self, lang = 'en'):
+        '''
+        api 的多语言支持
+        '''
+        # lang = self.get_argument('lang', 'en')
+        pass
 
     def site_url(self, url):
         '''

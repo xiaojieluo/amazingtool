@@ -11,6 +11,9 @@ class index(APIHandler):
         text : 表示要加密的源数据
     '''
 
+    # 该 api 支持的加密算法,过滤 type 参数用
+    TYPE = ('md5', 'sha1','sha224','sha256','sha384','sha512', 'blake2b')
+
     def get(self):
         types = (self.get_argument('type', '')).split('|')
         text = self.get_argument('text', '')
@@ -28,12 +31,15 @@ class index(APIHandler):
             type_ : 加密类型
             text : 需要加密的源数据
         '''
-        if type_ in ['md5', 'sha1','sha224','sha256','sha384','sha512', 'blake2b']:
+        if type_ in self.TYPE:
             if hasattr(hashlib, type_):
                 result =  getattr(hashlib, type_)(text.encode(charset)).hexdigest()
                 self.update(type_, {'text': text, 'result': result})
-
                 return result
+        else:
+            return 'The encryption algorithm is not supported at this time'
+
+
 
     def update(self, type_, data):
         '''
