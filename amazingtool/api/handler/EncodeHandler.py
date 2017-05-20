@@ -1,18 +1,18 @@
 from api.handler.APIHandler import APIHandler
-import hashlib
+import base64
 
 
 class index(APIHandler):
     '''
     加密 api,请求示例
-    uri/encrypt?type='md5|sha256|sha512'&text=hello
+    uri/encrypt?type=base64&text=hello
     参数:
         type : 表示加密类型,当类型有多个时, 使用 | 分割
         text : 表示要加密的源数据
     '''
 
     # 该 api 支持的加密算法,过滤 type 参数用
-    TYPE = ('md5', 'sha1','sha224','sha256','sha384','sha512', 'blake2b')
+    TYPE = ('base16','base32', 'base64', 'base85')
 
     def get(self):
         types = (self.get_argument('type', '')).split('|')
@@ -20,24 +20,35 @@ class index(APIHandler):
         data = dict()
 
         for type_ in types:
-            data[type_] = self.encrypt(type_, text)
+            data[type_] = self.encode(type_, text)
 
         self.write_json(data)
 
-    def encrypt(self, type_, text, charset='utf-8'):
+    def encode(self, type_, text, charset='utf-8'):
         '''
-        抽象的加密函数,利用 python 的反射机制,执行 hashlib 相应的加密函数,并更新加密数据库中的资料
+        抽象的编码函数,利用 python 的反射机制,执行 base64 相应的加密函数,并更新 编码 数据库中的资料
         参数:
-            type_ : 加密类型
-            text : 需要加密的源数据
+            type_ : 编码类型
+            text : 需要编码的源数据
         '''
+        # types =
+
+        # 组合 base 编码名称,转换成 base64 库 需要的格式
+        # for k in self.TYPE:
+        #     types.append(k[0:1]+k[-2:]+'encode')
+        types = (type_[0:1]+type_[-2:]+'encode')
+
+        # print(types)
         if type_ in self.TYPE:
-            if hasattr(hashlib, type_):
-                result =  getattr(hashlib, type_)(text.encode(charset)).hexdigest()
+            print("in")
+            if hasattr(base64, types):
+                print("has")
+                result = getattr(base64, types)(text.encode()).decode()
                 self.update(type_, {'text': text, 'result': result})
                 return result
+            pass
         else:
-            return 'The encryption algorithm is not supported at this time'
+            return 'The encryption algorithm is no  t supported at this time'
 
 
 
