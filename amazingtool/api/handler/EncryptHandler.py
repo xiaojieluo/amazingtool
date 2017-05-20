@@ -17,10 +17,16 @@ class index(APIHandler):
     def get(self):
         types = (self.get_argument('type', '')).split('|')
         text = self.get_argument('text', '')
-        data = dict()
+        result = dict()
+
 
         for type_ in types:
-            data[type_] = self.encrypt(type_, text)
+            result[type_] = self.encrypt(type_, text)
+
+        data = dict(
+            query = text,
+            result = result
+        )
 
         self.write_json(data)
 

@@ -17,10 +17,15 @@ class index(APIHandler):
     def get(self):
         types = (self.get_argument('type', '')).split('|')
         text = self.get_argument('text', '')
-        data = dict()
+        result = dict()
 
         for type_ in types:
-            data[type_] = self.encode(type_, text)
+            result[type_] = self.encode(type_, text)
+
+        data = dict(
+            query = text,
+            result = result
+        )
 
         self.write_json(data)
 
@@ -31,26 +36,17 @@ class index(APIHandler):
             type_ : 编码类型
             text : 需要编码的源数据
         '''
-        # types =
 
         # 组合 base 编码名称,转换成 base64 库 需要的格式
-        # for k in self.TYPE:
-        #     types.append(k[0:1]+k[-2:]+'encode')
         types = (type_[0:1]+type_[-2:]+'encode')
 
-        # print(types)
         if type_ in self.TYPE:
-            print("in")
             if hasattr(base64, types):
-                print("has")
                 result = getattr(base64, types)(text.encode()).decode()
                 self.update(type_, {'text': text, 'result': result})
                 return result
-            pass
         else:
             return 'The encryption algorithm is no  t supported at this time'
-
-
 
     def update(self, type_, data):
         '''

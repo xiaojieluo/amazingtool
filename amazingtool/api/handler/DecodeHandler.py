@@ -13,9 +13,3 @@ class md5(APIHandler):
 
         result = self.db.md5.find_one({'text':text})
         print(result)
-
-        # data = dict(
-        #     text = text,
-        #     result =
-        # )
-        # self.write_json(data)
