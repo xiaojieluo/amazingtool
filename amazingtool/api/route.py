@@ -6,6 +6,7 @@ import api.handler.EncryptHandler as Encrypt
 import api.handler.EncodeHandler as Encode
 import api.handler.DecodeHandler as Decode
 import api.handler.DecryptHandler as Decrypt
+import api.handler.IpHandler as Ip
 
 route = [
     (r'/', Index.index),
@@ -14,16 +15,6 @@ route = [
     (r'/encrypt', Encrypt.index),
     (r'/decrypt', Decrypt.index),
     (r'/encode', Encode.index),
-    #
-    # (r'/encode/md5', Encode.md5),
-    # (r'/encode/sha1', Encode.sha1),
-    # (r'/encode/sha224', Encode.sha224),
-    # (r'/encode/sha256', Encode.sha256),
-    # (r'/encode/sha384', Encode.sha384),
-    # (r'/encode/sha512', Encode.sha512),
-    # (r'/encode/blake2b', Encode.blake2b),
-    # (r'/encode/shake128', Encode.shake128),
-    # (r'/encode/shake256', Encode.shake256),
-
+    (r'/ip', Ip.index),
     # (r'/decode/md5', Decode.md5),
 ]
