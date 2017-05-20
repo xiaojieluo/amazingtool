@@ -5,7 +5,7 @@ import hashlib
 class index(APIHandler):
     '''
     加密 api,请求示例
-    uri/encode?type='md5|sha256|sha512'&text=hello
+    uri/encrypt?type='md5|sha256|sha512'&text=hello
     参数:
         type : 表示加密类型,当类型有多个时, 使用 | 分割
         text : 表示要加密的源数据

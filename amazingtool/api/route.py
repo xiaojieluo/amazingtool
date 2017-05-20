@@ -2,14 +2,14 @@
 
 import api.handler.IndexHandler as Index
 import api.handler.UserHandler as User
-import api.handler.EncodeHandler as Encode
+import api.handler.EncryptHandler as Encrypt
 import api.handler.DecodeHandler as Decode
 
 route = [
     (r'/', Index.index),
     (r'/user/(.*)', User.index),
 
-    (r'/encode', Encode.index),
+    (r'/encrypt', Encrypt.index),
     #
     # (r'/encode/md5', Encode.md5),
     # (r'/encode/sha1', Encode.sha1),
@@ -21,5 +21,5 @@ route = [
     # (r'/encode/shake128', Encode.shake128),
     # (r'/encode/shake256', Encode.shake256),
 
-    (r'/decode/md5', Decode.md5),
+    # (r'/decode/md5', Decode.md5),
 ]
