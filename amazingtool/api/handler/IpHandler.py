@@ -13,6 +13,9 @@ class index(APIHandler):
         '''
         解析 查询参数
         '''
+        # TODO: 如果查询 query 是 domain 的话,可以先解析成 ip,再在数据库中查找,数据库中不存在记录时才请求 ip-api
+        #       因为 网络i/o 在网络状况不好时比较费时
+        # TODO: 这里如果输入的 domain 带 http:// 或 https:// 时,需要去掉
         query = self.get_argument('query', '') # 查询参数
         type_ = self.get_argument('type', 'json')
         url = 'http://ip-api.com/json/'
@@ -20,7 +23,9 @@ class index(APIHandler):
         data = self.find({'query': query})
         if data is None:
             r = requests.get(url+query)
+            # print(r.text)
             data = self.update('ip', json.loads(r.text))
+            # print(data)
 
         self.write_json(data)
 
@@ -31,7 +36,7 @@ class index(APIHandler):
         '''
         db = self.db[type_]
         result = db.find_one({'query':data.get('query', '')}, {'_id':False})
-        
+
         return result
 
     def update(self, type_, data):
@@ -44,4 +49,5 @@ class index(APIHandler):
         db = self.db[type_]
         if db.find_one({'query':data.get('query', '')}) is None:
             db.insert_one(data)
-            return self.find(data)
+
+        return self.find(data)

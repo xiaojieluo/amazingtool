@@ -27,6 +27,7 @@ class index(APIHandler):
             query = text,
             result = result
         )
+        print(data)
 
         self.write_json(data)
 

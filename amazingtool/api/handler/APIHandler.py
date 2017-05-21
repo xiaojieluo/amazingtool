@@ -39,11 +39,12 @@ class APIHandler(tornado.web.RequestHandler):
         self.set_header('Cache-Control', "no-cache")
         self.set_status(status_code)
 
-        self.write(json.dumps({
-            'meta':status_code,
-            'data':data,
-            'msg':msg,
-        }))
+        # self.write(json.dumps({
+        #     'meta':status_code,
+        #     'data':data,
+        #     'msg':msg,
+        # }))
+        self.write(json.dumps(data))
         raise Finish()
 
     def write_error(self, data, status_code=404, msg='error.'):
