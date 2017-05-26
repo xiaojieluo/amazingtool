@@ -23,9 +23,9 @@ class index(APIHandler):
         data = self.find({'query': query})
         if data is None:
             r = requests.get(url+query)
-            # print(r.text)
+            # TODO: 发送异步任务到 celery, 请求 ip-api 数据库,获取 ip的最新数据,与本地数据库比较
+            # 若比本地数据库新,则替换本地数据库
             data = self.update('ip', json.loads(r.text))
-            # print(data)
 
         self.write_json(data)
 

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding=utf-8
-
 import json
 from tornado.web import Finish
 import tornado.web
@@ -8,6 +5,8 @@ import tornado.web
 import sys
 sys.path.append('../')
 from amazingtool.db import db
+import time
+import tasks
 
 class APIHandler(tornado.web.RequestHandler):
 
@@ -38,14 +37,32 @@ class APIHandler(tornado.web.RequestHandler):
     def write_json(self, data, status_code=200, msg='success.'):
         self.set_header('Cache-Control', "no-cache")
         self.set_status(status_code)
-
-        # self.write(json.dumps({
-        #     'meta':status_code,
-        #     'data':data,
-        #     'msg':msg,
-        # }))
         self.write(json.dumps(data))
         raise Finish()
 
-    def write_error(self, data, status_code=404, msg='error.'):
-        self.write_json(data, status_code, msg)
+    def write_error(self, msg='error.', status_code=404):
+        data = dict(
+            code=status_code,
+            msg=msg
+        )
+        self.write_json(data, status_code)
+
+    def log(self, msg, name='AmazingTool', level='info'):
+        '''
+        日志记录
+        将程序产生的日志信息进行记录并持久化存储
+        '''
+        data = dict(
+            name = 'celery',
+            level = level,
+            datetime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
+            msg = msg
+        )
+
+        # log_db.insert_one(data)
+        try:
+            tasks.log.delay(data)
+        except:
+            print("Error.....celery not start")
+
+        # print(log_db)
