@@ -1,7 +1,7 @@
 # amazing tool
 amazing tool
 
-# how to return
+# how to run
 ```shell
 redis-server --port 6379
 
