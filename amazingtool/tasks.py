@@ -3,12 +3,40 @@ import requests
 import json
 import time
 
-from db import db
+# from amazingtool.db import database
+from db import database
+from api.web import Cache
+# from amazingtool.api.settings import settings
 
-broker = 'redis://localhost:6379'
-backend = 'redis://localhost:6379'
+broker = 'redis://localhost:6379/1'
+# broker = 'amqp://xiaojieluo:041000lxj@ArchLinux:5672/amazingtool_vhost'
+backend = 'redis://localhost:6379/2'
+# backend = ''
 
 app = Celery('AmazingTool', broker = broker, backend = backend)
+db = database().client
+cache = Cache().r
+
+@app.task(bind=True)
+def ip(self, ip):
+    url = 'http://ip-api.com/json/'
+    r = requests.get(url+ip)
+    print(r.text)
+    return json.loads(r.text)
+
+@app.task(ignore_result=True)
+def update(type_, data):
+    '''
+    当数据不存在时,更新 mongodb 数据库
+        type_ : 加密类型
+        data  : 源数据与加密后的数据, dict 格式,
+            { text:'', result:'' }
+    '''
+    import time
+    time.sleep(1)
+    database = db[type_]
+    if database.find_one(data) is None:
+        database.insert_one(data)
 
 @app.task(bind=True)
 def log(self, data):

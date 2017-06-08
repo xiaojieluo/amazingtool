@@ -7,6 +7,9 @@ sys.path.append('../')
 from amazingtool.db import db
 import time
 import tasks
+import asyncio
+from api.web import Cache
+
 
 class APIHandler(tornado.web.RequestHandler):
 
@@ -19,7 +22,19 @@ class APIHandler(tornado.web.RequestHandler):
 
         if self.settings.get('allow_remote_access'):
             self.access_control_allow()
-        self.db = db
+
+        self.db = self.settings['db']
+        self.cache = Cache().r
+
+    def get_current_user(self):
+        appid = self.get_argument('appid', '')
+        appkey = self.get_argument('appkey', '')
+
+        return True
+        if appid and appkey:
+            return True
+        # else:
+        #     return self.write_error("unauthenticated.")
 
     def language(self, lang = 'en'):
         '''
@@ -38,7 +53,8 @@ class APIHandler(tornado.web.RequestHandler):
         self.set_header('Cache-Control', "no-cache")
         self.set_status(status_code)
         self.write(json.dumps(data))
-        raise Finish()
+
+        # raise Finish()
 
     def write_error(self, msg='error.', status_code=404):
         data = dict(
@@ -46,6 +62,28 @@ class APIHandler(tornado.web.RequestHandler):
             msg=msg
         )
         self.write_json(data, status_code)
+
+    def find(self, data, type_='isbn', projection=dict(_id=False, isbn=False)):
+        '''
+        由于网络请求比较慢,所以先查询本地数据库,
+        当本地数据库没有记录的时候,再通过 外部api 请求
+        '''
+        db = self.db[type_]
+        result = db.find_one(data, projection)
+        return result
+
+    def update(self, query, data, type_='isbn'):
+        '''
+        当数据不存在时,更新 mongodb 数据库
+            type_ : 类型
+            data  : 要写入数据库的内容, dict 格式,
+                { text:'', result:'' }
+        '''
+        db = self.db[type_]
+        if db.find_one(query) is None:
+            db.insert_one(data)
+
+        return self.find(query)
 
     def log(self, msg, name='AmazingTool', level='info'):
         '''
