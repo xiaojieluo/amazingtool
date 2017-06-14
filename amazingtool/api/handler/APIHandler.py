@@ -24,7 +24,7 @@ class APIHandler(tornado.web.RequestHandler):
             self.access_control_allow()
 
         self.db = self.settings['db']
-        self.cache = Cache().r
+        self.cache = Cache()
 
     def get_current_user(self):
         appid = self.get_argument('appid', '')
@@ -62,6 +62,7 @@ class APIHandler(tornado.web.RequestHandler):
             msg=msg
         )
         self.write_json(data, status_code)
+        raise Finish()
 
     def find(self, data, type_='isbn', projection=dict(_id=False, isbn=False)):
         '''
@@ -72,7 +73,7 @@ class APIHandler(tornado.web.RequestHandler):
         result = db.find_one(data, projection)
         return result
 
-    def update(self, query, data, type_='isbn'):
+    async def update(self, data, type_='isbn',query = {} ):
         '''
         当数据不存在时,更新 mongodb 数据库
             type_ : 类型

@@ -26,38 +26,25 @@ class ip(APIHandler):
         # TODO: 如果查询 query 是 domain 的话,可以先解析成 ip,再在数据库中查找,数据库中不存在记录时才请求 ip-api
         #       因为 网络i/o 在网络状况不好时比较费时
         # TODO: 这里如果输入的 domain 带 http:// 或 https:// 时,需要去掉
+        key = 'api.ip.{ip}'.format(ip=query)
 
-        data = self.find({'query': query}, 'ip')
+        if self.cache.exists(key):
+            data = self.cache.hgetall(key)
+        else:
+            data = self.find({'query': query}, 'ip')
+
         if data is None:
-            # r = requests.get(url+query)
-            ip_data = await self.get_data(query)
-            # result = tasks.ip.delay(query)
-            # ip_data = result.get()
-            # TODO: 发送异步任务到 celery, 请求 ip-api 数据库,获取 ip的最新数据,与本地数据库比较
-            # 若比本地数据库新,则替换本地数据库
-            # data = self.update('ip', json.loads(r.text))
-            data = await self.update(ip_data, 'ip')
-            self.write_error("暂无数据,已加入抓取队列")
+            data = await self.get_data(query)
+            self.cache.hmset(key, data)
+            await self.update(data, 'ip')
+
         self.write_json(data)
 
     async def get_data(self, query):
-        url = 'http://ip-api.com/json/'
-        r = requests.get(url+query)
+        url = 'http://ip-api.com/json/'+query
+        r = requests.get(url)
 
         return json.loads(r.text)
-
-    # def update(self, type_, data):
-    #     '''
-    #     当数据不存在时,更新 mongodb 数据库
-    #         type_ : 类型
-    #         data  : 要写入数据库的内容, dict 格式,
-    #             { text:'', result:'' }
-    #     '''
-    #     db = self.db[type_]
-    #     if db.find_one({'query':data.get('query', '')}) is None:
-    #         db.insert_one(data)
-    #
-    #     return self.find(data)
 
 class isbn(APIHandler):
     '''
@@ -107,25 +94,31 @@ class isbn(APIHandler):
         else:
             return json.loads(r.text)
 
+class history(APIHandler):
+    def get(self):
+        month = self.get_argument('month', '01')
+        day = self.get_argument('day', '01')
 
+        cache_key = 'amazingtool.history.{month}.{day}'.format(month=month, day=day)
 
-class weather(APIHandler):
-    '''
-    天气接口
-    '''
-    def get(self, city):
+        if self.cache.exists(cache_key):
+            history = self.cache.hgetall(cache_key)
+        else:
+            history = self.find({'day':day, 'month':month}, 'history')
+            self.cache.hsetall(cache_key, history)
 
-        if city == '':city = 'china'
-        url = 'http://flash.weather.com.cn/wmaps/xml/{city}.xml'
+        print(history)
+        return
+        if history is None:
+            self.write_error('error.')
 
-        r = requests.get(url.format(city=city))
-        r.encoding = 'unicode'
-        import xmltodict
-        data =json.dumps(xmltodict.parse(r.text))
+        # print(history)
+        # 图片存储前缀 url
+        img_url = 'http://or9eyjm3w.bkt.clouddn.com/'
+        for his in history['events']:
+            his['thumb'] = img_url + his['thumb']
 
-        print(data.encode('gb2312'))
-        # import pprint
-        # pprint.pprint(data['china'])
-
-        print(city)
-        pass
+        data = dict(
+            result = history
+        )
+        self.write_json(data)
