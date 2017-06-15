@@ -6,6 +6,16 @@ import tasks
 import asyncio
 import requests
 import tornado
+from copy import deepcopy
+# import logging
+# # 通过下面的方式进行简单配置输出方式与日志级别
+# logging.basicConfig(filename='logger.log', level=logging.INFO)
+#
+# logging.debug('debug message')
+# logging.info('info message')
+# logging.warn('warn message')
+# logging.error('error message')
+# logging.critical('critical message')
 
 class index(APIHandler):
     def get(self):
@@ -27,6 +37,7 @@ class ip(APIHandler):
         #       因为 网络i/o 在网络状况不好时比较费时
         # TODO: 这里如果输入的 domain 带 http:// 或 https:// 时,需要去掉
         key = 'api.ip.{ip}'.format(ip=query)
+        nocache = self.get_argument('nocache', 0)
 
         if self.cache.exists(key):
             data = self.cache.hgetall(key)
@@ -34,9 +45,10 @@ class ip(APIHandler):
             data = self.find({'query': query}, 'ip')
 
         if data is None:
-            data = await self.get_data(query)
-            self.cache.hmset(key, data)
-            await self.update(data, 'ip')
+            tmp = await self.get_data(query)
+            self.cache.hmset(key, tmp)
+            data = deepcopy(tmp)
+            await self.update(tmp, 'ip')
 
         self.write_json(data)
 
@@ -59,16 +71,30 @@ class isbn(APIHandler):
         else:
             self.write_error('isbn 错误')
 
-        result = self.find({'isbn':isbn})
+        key = 'api.isbn.{isbn}'.format(isbn=isbn)
+
+        # result = self.cache.hgetall(key)
+        print(key)
+        if self.cache.exists(key):
+            print('命中缓存')
+            result = self.cache.hgetall(key)
+        else:
+            result = self.find({'isbn':isbn})
+
+        print(result)
+
+        # if result is None:
+        #     result = self.find({'isbn':isbn})
         if result is None:
                 result = await self.get_data(isbn)
+                self.cache.hmset(key, result)
 
         self.write_json(result)
 
     async def get_data(self, isbn):
         url = 'https://api.douban.com/v2/book/isbn/'
         r = requests.get(url + isbn)
-        print(r.text)
+        # print(r.text)
         if r.status_code == 200:
             tmp = json.loads(r.text)
             data = dict(
@@ -89,7 +115,10 @@ class isbn(APIHandler):
                 author_intro = tmp.get('author_intro', ''),
                 summary = tmp.get('summary', ''),
             )
-            result =  self.update({'isbn':isbn}, data)
+            result = deepcopy(data)
+            # print(result)
+            # return
+            await self.update(data, 'isbn')
             return result
         else:
             return json.loads(r.text)

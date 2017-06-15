@@ -12,7 +12,8 @@ class index(APIHandler):
             'decode':self.site_url('decrypt/fc5e038d38a57032085441e7fe7010b0?type=base64|md5|sha1|sha224|sha256|sha384|sha512'),
             'query':{
                 'ip':self.site_url('ip/1.1.1.1'),
-                'history':self.site_url('history')
+                'history':self.site_url('history'),
+                'isbn':self.site_url('isbn/9787301134063')
             }
         }
         self.write_json(data)
