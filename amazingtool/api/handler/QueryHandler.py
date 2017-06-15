@@ -1,7 +1,6 @@
 from api.handler.APIHandler import APIHandler
 import requests
 import json
-from api.model.isbn import isbn as ISBN
 import tasks
 import asyncio
 import requests
