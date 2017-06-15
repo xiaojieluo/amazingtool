@@ -35,13 +35,12 @@ class encrypt(APIHandler):
         for type_ in types:
             if type_ in self.TYPE:
                 tmp = self.cache.exists(encrypt_key.format(text=text))
-                # print(encrypt_key.format(text=text))
 
                 if tmp and self.cache.hexists(encrypt_key.format(text=text), type_):
                     cache = self.cache.hget(encrypt_key.format(text=text), type_)
-                    # print(cache)
                     result[type_] = bytes.decode(cache)
                 else:
+                    print("不存在")
                     result[type_] = await self.encrypt(type_, text)
                     await self.update_cache(type_, {'text': text, 'result': result})
 
@@ -69,15 +68,13 @@ class encrypt(APIHandler):
         異布更新緩存與數據庫
         '''
         text = data.get('text', '')
-        print(data)
         result = data.get('result', '')
 
-        # if self.cache.exists(encrypt_key.format(text=text)) is False:
-            # print("不存在， 更新數據")
         self.cache.hmset(encrypt_key.format(text=text), {type_:result[type_]})
-        # Redis 中沒有緩存時將數據丟給 celery 去更新数据库
-        tasks.update.delay(type_, data)
         self.cache.hmset(decrypt_key.format(text=result[type_]), {type_:text})
+
+        tmp = {'text':text, 'result':data['result'][type_]}
+        await self.update(tmp, type_)
 
 
 class decrypt(APIHandler):

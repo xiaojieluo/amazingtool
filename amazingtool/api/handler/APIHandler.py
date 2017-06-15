@@ -73,7 +73,7 @@ class APIHandler(tornado.web.RequestHandler):
         result = db.find_one(data, projection)
         return result
 
-    async def update(self, data, type_='isbn',query = {} ):
+    async def update(self, data, type_='isbn',query = False ):
         '''
         当数据不存在时,更新 mongodb 数据库
             type_ : 类型
@@ -81,7 +81,13 @@ class APIHandler(tornado.web.RequestHandler):
                 { text:'', result:'' }
         '''
         db = self.db[type_]
-        if db.find_one(query) is None:
+        if query is True:
+            if db.find_one(data):
+                print("TODO:update")
+            else:
+                db.insert_one(data)
+        else:
+            print("insert!")
             db.insert_one(data)
 
         return self.find(query)

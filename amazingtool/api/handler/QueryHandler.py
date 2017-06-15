@@ -103,20 +103,19 @@ class history(APIHandler):
 
         if self.cache.exists(cache_key):
             history = self.cache.hgetall(cache_key)
+            history['events'] = json.loads(history['events'].replace('\'', '"'))
         else:
             history = self.find({'day':day, 'month':month}, 'history')
-            self.cache.hsetall(cache_key, history)
+            self.cache.hmset(cache_key, history)
 
-        print(history)
-        return
         if history is None:
             self.write_error('error.')
 
-        # print(history)
         # 图片存储前缀 url
         img_url = 'http://or9eyjm3w.bkt.clouddn.com/'
         for his in history['events']:
             his['thumb'] = img_url + his['thumb']
+
 
         data = dict(
             result = history

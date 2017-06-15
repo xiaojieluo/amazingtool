@@ -12,12 +12,11 @@ class Application(tornado.web.Application):
         super(Application, self).__init__(handlers=route,**settings)
 
 def make_app():
-    # return tornado.web.Application(route, **settings)
     return Application()
 
 # 使用 gunicorn 启动，速度大幅提升
 # gunicorn --workers=4 app:app
-wsgi_app = tornado.wsgi.WSGIApplication(route, **settings)
+app = tornado.wsgi.WSGIApplication(route, **settings)
 
 
 # wsgi_app = tornado.wsgi.WSGIAdapter(Application())

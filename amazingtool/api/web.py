@@ -16,14 +16,25 @@ class Cache(object):
     '''
     使用 Redis 作为缓存
     '''
+
     def __init__(self, host='localhost', port=6379, db=0):
         self.pool = redis.ConnectionPool(host=host, port=port, db=db)
         self.r = redis.Redis(connection_pool=self.pool)
+        self.time = '3600' # 缓存过期时间
 
     def hgetall(self, key):
         result = self.r.hgetall(key)
-
         return convert(result)
+
+    def hmset(self, key, mapping, time=None):
+        if time is None:
+            time = self.time
+
+        result = self.r.hmset(key, mapping)
+        self.r.expire(key, self.time)
+
+        return result
+
 
     def __getattr__(self, name):
         '''
