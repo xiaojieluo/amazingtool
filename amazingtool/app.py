@@ -3,7 +3,8 @@ import tornado.web
 from tornado.options import define, options
 import tornado.wsgi
 
-from api import route, settings
+from api import route
+from settings import settings
 
 define("port", default="8888", help="listen port")
 

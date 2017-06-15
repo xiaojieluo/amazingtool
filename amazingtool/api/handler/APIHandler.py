@@ -4,7 +4,6 @@ import tornado.web
 
 import sys
 sys.path.append('../')
-from amazingtool.db import db
 import time
 import tasks
 import asyncio

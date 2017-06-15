@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-# coding=utf-8
-
 import tornado.web
-from amazingtool.db import database
+# from amazingtool.db import database
+
+from db import database
 
 settings = dict(
     debug = True,
