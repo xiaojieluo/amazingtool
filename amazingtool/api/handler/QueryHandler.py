@@ -96,8 +96,8 @@ class isbn(APIHandler):
 
 class history(APIHandler):
     def get(self):
-        month = self.get_argument('month', '01')
-        day = self.get_argument('day', '01')
+        month = int(self.get_argument('month', 1))
+        day = int(self.get_argument('day', 1))
 
         cache_key = 'amazingtool.history.{month}.{day}'.format(month=month, day=day)
 
@@ -105,8 +105,9 @@ class history(APIHandler):
             history = self.cache.hgetall(cache_key)
             history['events'] = json.loads(history['events'].replace('\'', '"'))
         else:
-            history = self.find({'day':day, 'month':month}, 'history')
-            self.cache.hmset(cache_key, history)
+            history = self.find({'day':str(day), 'month':str(month)}, 'history')
+            if history:
+                self.cache.hmset(cache_key, history)
 
         if history is None:
             self.write_error('error.')
@@ -115,7 +116,6 @@ class history(APIHandler):
         img_url = 'http://or9eyjm3w.bkt.clouddn.com/'
         for his in history['events']:
             his['thumb'] = img_url + his['thumb']
-
 
         data = dict(
             result = history

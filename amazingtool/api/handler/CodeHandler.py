@@ -43,11 +43,12 @@ class encrypt(APIHandler):
                     print("不存在")
                     result[type_] = await self.encrypt(type_, text)
                     await self.update_cache(type_, {'text': text, 'result': result})
-
             else:
-                return 'The encryption algorithm is not supported at this time'
+                result[type_] = 'The encryption algorithm is not supported at this time'
 
         data = dict(query = text,result = result)
+
+        print(data)
 
         self.write_json(data)
 
@@ -101,7 +102,6 @@ class decrypt(APIHandler):
                         cache = self.cache.hget(decrypt_key.format(text=text), type_)
                         result[type_] = bytes.decode(cache)
                     else:
-                        # print(type_)
 
                         result[type_] = await self.decrypt(type_, text)
                 else:
@@ -121,28 +121,9 @@ class decrypt(APIHandler):
                 type_ : 加密类型
                 text : 需要加密的源数据
             '''
-            # if type_ in self.TYPE:
-            # key = 'api.decrypt.{query}'.format(query=text)
             result =  self.find({'result':text}, type_)
             if result:
                 return result
-        #
-        # def find(self, type_, data):
-        #     '''
-        #     当数据不存在时,更新 mongodb 数据库
-        #     查询加密数据库,当数据不存在时,返回提示字符
-        #         type_ : 加密类型
-        #         data  : 源数据与加密后的数据, dict 格式,
-        #             { text:'', result:'' }
-        #     '''
-        #     db = self.db[type_]
-        #     # 查询的时候要和 encrypt 反过来a查询,使用 result
-        #     query = db.find_one({'result':data.get('text', '')})
-        #
-        #     if query is None:
-        #         return '数据库中没有数据,无法解密'
-        #     else:
-        #         return query.get('text')
 
 class encode(APIHandler):
     '''
