@@ -14,6 +14,9 @@ class index(APIHandler):
                 'ip':self.site_url('ip/1.1.1.1'),
                 'history':self.site_url('history'),
                 'isbn':self.site_url('isbn/9787301134063')
+            },
+            'data':{
+                'gdp':self.site_url('data/gdp?year=2015')
             }
         }
         self.write_json(data)
