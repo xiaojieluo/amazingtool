@@ -14,7 +14,7 @@ class APIHandler(tornado.web.RequestHandler):
 
     def __init__(self, application, request, **kwargs):
         super().__init__(application, request, **kwargs)
-        self.set_header('Content-Type', 'text/json')
+        self.set_header('Content-Type', 'application/json')
         self.set_header('Server', 'You guess.')
         self.set_header('Connection','keep-alive')
         self.set_header('Access-Control-Allow-Origin','*')
@@ -34,13 +34,6 @@ class APIHandler(tornado.web.RequestHandler):
             return True
         # else:
         #     return self.write_error("unauthenticated.")
-
-    def language(self, lang = 'en'):
-        '''
-        api 的多语言支持
-        '''
-        # lang = self.get_argument('lang', 'en')
-        pass
 
     def site_url(self, url):
         '''
