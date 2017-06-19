@@ -46,14 +46,6 @@ class Cache(object):
         except:
             raise Exception()
 
-
-if __name__ == '__main__':
-    cache = Cache()
-    key = 'api.ip.6.0.0.28'
-    cache.hgetall(key)
-    # print(cache.r.set('key', 'k'))
-
-
 def do_cprofile(filename):
     '''
     decorator for function calling
@@ -76,3 +68,10 @@ def do_cprofile(filename):
             return result
         return profiled_func
     return wrapper
+
+
+if __name__ == '__main__':
+    cache = Cache()
+    key = 'api.ip.6.0.0.28'
+    cache.hgetall(key)
+    # print(cache.r.set('key', 'k'))

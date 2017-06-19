@@ -96,10 +96,7 @@ class APIHandler(tornado.web.RequestHandler):
             msg = msg
         )
 
-        # log_db.insert_one(data)
         try:
             tasks.log.delay(data)
         except:
             print("Error.....celery not start")
-
-        # print(log_db)

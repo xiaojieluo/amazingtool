@@ -63,18 +63,12 @@ class isbn(APIHandler):
 
         key = 'api.isbn.{isbn}'.format(isbn=isbn)
 
-        # result = self.cache.hgetall(key)
-        print(key)
         if self.cache.exists(key):
             print('命中缓存')
             result = self.cache.hgetall(key)
         else:
             result = self.find({'isbn':isbn})
 
-        print(result)
-
-        # if result is None:
-        #     result = self.find({'isbn':isbn})
         if result is None:
                 result = await self.get_data(isbn)
                 self.cache.hmset(key, result)
@@ -84,7 +78,7 @@ class isbn(APIHandler):
     async def get_data(self, isbn):
         url = 'https://api.douban.com/v2/book/isbn/'
         r = requests.get(url + isbn)
-        # print(r.text)
+
         if r.status_code == 200:
             tmp = json.loads(r.text)
             data = dict(
@@ -106,8 +100,7 @@ class isbn(APIHandler):
                 summary = tmp.get('summary', ''),
             )
             result = deepcopy(data)
-            # print(result)
-            # return
+            
             await self.update(data, 'isbn')
             return result
         else:
